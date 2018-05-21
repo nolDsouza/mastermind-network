@@ -1,0 +1,60 @@
+package channel;
+
+import stdio.*;
+import java.io.IOException;
+import java.net.Socket;
+import java.lang.NullPointerException;
+/******************************************************************************
+ * An interface for socket interaction. The procedure is as follows:
+ * 1. Connect to the Port and Host.
+ * 2. Open Input/Output channels.
+ * 3. Communication between ports based on some protocol.
+ * 4. Closure of all opened ports.
+ * The Server can accept multiple clients to the same port.
+ *****************************************************************************/
+public class Stream {
+	private In reader;
+	private Out writer;
+	private String msg;
+	/**
+	 * Connect to the given port and open IO channels.
+	 * @Return port connected to or an error code.
+	 */
+	public Stream(Socket socket) {
+		reader = new In(socket);
+		writer = new Out(socket);
+	}
+
+	public String getMsg() {
+		return msg;
+	}
+
+	public void setMsg(String str) {
+		this.msg = str;
+	}
+	/**
+	 * Returns if the input has a next line.
+	 */
+	public boolean hasNext() {
+		return !reader.isEmpty();
+	}
+	/**
+	 * Loop until the reader can read line. Loop is required as the server
+	 * and clients share no global objects.
+	 */
+	public void listen() {
+		do {
+			if (reader.hasNextLine()) {
+				this.msg = reader.readLine();
+				return;
+			}
+		} while (true);
+	}
+	/**
+	 * Write message to buffer.
+	 */
+	public void tell() {
+		writer.println(msg);
+	}
+}  
+
